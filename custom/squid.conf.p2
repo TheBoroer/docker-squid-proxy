@@ -1,0 +1,135 @@
+# TEMPLATED CONFIGURATION FILE. UPDATED ON EACH RUN.
+
+cache_effective_user proxy
+workers {{SQUID_WORKERS|default:"8"}}
+pipeline_prefetch on
+shutdown_lifetime 1 seconds
+pconn_timeout 2 minutes
+connect_timeout 5 minutes
+request_timeout 5 minutes
+
+# Log Config
+logfile_rotate 0
+access_log {{ACCESS_LOG|default:"stdio:/dev/stdout combined"}}
+cache_store_log {{CACHE_STORE_LOG|default:"stdio:/dev/stdout"}}
+cache_log {{CACHE_LOG|default:"/dev/stderr"}}
+#netdb_filename {{NETDB_FILENAME|default:"stdio:/var/cache/squid4/netdb.state"}}
+
+# Visible hostname to allow multi-squid
+visible_hostname {{VISIBLE_HOSTNAME|default:"docker-squid4"}}
+
+http_port {{HTTP_PORT}}
+https_port {{HTTPS_PORT}} cert={{HTTPS_CERT}} key={{HTTPS_KEY}}
+
+# DNS Resolver Settings
+{% if DNS_OVER_HTTPS|default:"" != "true" %}
+  dns_v4_first on
+  dns_nameservers 1.1.1.1 8.8.8.8
+{% endif %}
+
+
+#######################
+# ACLs / Access Rules #
+#######################
+
+# Example Safe Port List
+# acl Safe_ports port 80          # http
+# Deny requests to certain unsafe ports
+#http_access deny !Safe_ports
+
+# Example SSL Safe Port List
+# acl SSL_ports port 443
+# acl CONNECT method CONNECT
+# Deny CONNECT to other than secure SSL ports
+#http_access deny CONNECT !SSL_ports
+
+# ^^^^^^^^^^^^ NOTE ^^^^^^^^^^^^
+# Commented out since there are more SSL ports that need to be unblocked than the standard 443.
+# Example: https://neu-speedtest1.neustylesoftware.ca:8080/hello?nocache=8039cc95-4e45-467f-abcd-234fa1f9761b
+
+# Deny access to manager completely.
+http_access deny manager
+
+# ACLs/Rules for Cache Manager
+acl manager proto cache_object
+
+# ACLs/Rules for localhost access
+acl localhost src 127.0.0.1/32 ::1
+acl to_localhost dst 127.0.0.0/8 0.0.0.0/32 ::1
+
+# ACLs/Rules for localnet
+# localnet means internal/private/LAN networks. Public Proxy should deny access to these ip ranges (security things)
+acl localnet src 10.0.0.0/8     # RFC1918 possible internal network
+acl localnet src 172.16.0.0/12  # RFC1918 possible internal network
+acl localnet src 192.168.0.0/16 # RFC1918 possible internal network
+acl localnet src fc00::/7       # RFC 4193 local private network range
+acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+
+acl to_localnet dst 0.0.0.1-0.255.255.255 # RFC 1122 "this" network (LAN)
+acl to_localnet dst 10.0.0.0/8            # RFC 1918 local private network (LAN)
+acl to_localnet dst 100.64.0.0/10         # RFC 6598 shared address space (CGN)
+acl to_localnet dst 169.254.0.0/16        # RFC 3927 link-local (directly plugged) machines
+acl to_localnet dst 172.16.0.0/12         # RFC 1918 local private network (LAN)
+acl to_localnet dst 192.168.0.0/16        # RFC 1918 local private network (LAN)
+acl to_localnet dst fc00::/7              # RFC 4193 local private network range
+acl to_localnet dst fe80::/10             # RFC 4291 link-local (directly plugged) machines
+
+# We strongly recommend the following be uncommented to protect innocent
+# web applications running on the proxy server who think the only
+# one who can access services on "localhost" is a local user
+http_access deny to_localhost
+
+# Deny Access TO local/internal/private networks
+http_access deny to_localnet
+
+# IP Rate Limit Settings
+#acl ip_limit max_user_ip 5
+#http_access deny ip_limit
+#authenticate_ip_ttl 5 minutes
+
+# Authentication
+#auth_param basic program /usr/libexec/basic_ncsa_auth /etc/squid4/squid_passwd
+{% if RADIUS_ENABLE|default:"" == "true" %}
+  auth_param basic program /usr/libexec/basic_radius_auth -f /etc/squid4/radius_auth.conf
+  auth_param basic children {{AUTH_CHILDREN|default:"5000"}}
+  auth_param basic realm {{AUTH_REALM|default:"Restricted Area"}}
+  auth_param basic credentialsttl 2 hours
+  auth_param basic casesensitive off
+{% endif %}
+
+# Require Authentication
+acl authenticated_user proxy_auth REQUIRED
+http_access allow all authenticated_user
+
+# And finally deny all other access to this proxy
+http_access deny all
+
+## Use the below to avoid proxy-chaining
+always_direct allow all
+
+#############
+# Hardening #
+#############
+
+icp_port 0
+htcp_port 0
+icp_access deny all
+htcp_access deny all
+snmp_port 0
+snmp_access deny all
+
+via off
+forwarded_for off
+httpd_suppress_version_string on
+
+### DENY Request Headers ###
+request_header_access Via deny all
+request_header_access Forwarded-For deny all
+request_header_access X-Forwarded-For deny all
+request_header_access Referer deny all
+request_header_access From deny all
+request_header_access User-Agent deny all
+
+# Set Custom Error Pages
+error_directory /etc/squid4/error_pages/
+

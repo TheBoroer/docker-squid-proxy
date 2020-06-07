@@ -1,0 +1,5 @@
+{% if RADIUS_ENABLE|default:"" == "true" %}
+  server {{RADIUS_SERVER|default:""}}
+  port {{RADIUS_PORT|default:"1812"}}
+  secret {{RADIUS_SECRET|default:""}}
+{% endif %}
