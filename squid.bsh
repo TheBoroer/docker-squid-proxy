@@ -64,9 +64,8 @@ squid -z -N
 
 
 # Start squid normally
-squid -N 2>&1 &
+squid -NYCd 1 2>&1 &
 PID=$!
-
 
 
 # This construct allows signals to kill the container successfully.

@@ -9,10 +9,11 @@ connect_timeout 5 minutes
 request_timeout 5 minutes
 
 # Log Config
+# https://wiki.ipfire.org/configuration/network/proxy/ext_info/logging
 logfile_rotate 0
 access_log {{ACCESS_LOG|default:"stdio:/dev/stdout combined"}}
-cache_store_log {{CACHE_STORE_LOG|default:"stdio:/dev/stdout"}}
-cache_log {{CACHE_LOG|default:"/dev/stderr"}}
+#cache_store_log {{CACHE_STORE_LOG|default:"stdio:/dev/stdout"}}
+#cache_log {{CACHE_LOG|default:"/dev/stderr"}}
 #netdb_filename {{NETDB_FILENAME|default:"stdio:/var/cache/squid4/netdb.state"}}
 
 # Visible hostname to allow multi-squid
@@ -23,8 +24,8 @@ https_port {{HTTPS_PORT}} cert={{HTTPS_CERT}} key={{HTTPS_KEY}}
 
 # DNS Resolver Settings
 {% if DNS_OVER_HTTPS|default:"" != "true" %}
-  dns_v4_first on
-  dns_nameservers 1.1.1.1 8.8.8.8
+dns_v4_first on
+dns_nameservers 1.1.1.1 8.8.8.8
 {% endif %}
 
 
@@ -90,11 +91,11 @@ http_access deny to_localnet
 # Authentication
 #auth_param basic program /usr/libexec/basic_ncsa_auth /etc/squid4/squid_passwd
 {% if RADIUS_ENABLE|default:"" == "true" %}
-  auth_param basic program /usr/libexec/basic_radius_auth -f /etc/squid4/radius_auth.conf
-  auth_param basic children {{AUTH_CHILDREN|default:"5000"}}
-  auth_param basic realm {{AUTH_REALM|default:"Restricted Area"}}
-  auth_param basic credentialsttl 2 hours
-  auth_param basic casesensitive off
+auth_param basic program /usr/libexec/basic_radius_auth -f /etc/squid4/radius_auth.conf
+auth_param basic children {{AUTH_CHILDREN|default:"5000"}} startup=10 idle=5
+auth_param basic realm {{AUTH_REALM|default:"Restricted Area"}}
+auth_param basic credentialsttl 2 hours
+auth_param basic casesensitive off
 {% endif %}
 
 # Require Authentication

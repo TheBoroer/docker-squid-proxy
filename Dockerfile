@@ -117,5 +117,3 @@ EXPOSE 3128
 EXPOSE 3129
 
 ENTRYPOINT [ "/squid.bsh" ]
-
-# CMD ["/usr/sbin/squid", "-f", "/etc/squid/squid.conf", "-NYCd", "1"]
