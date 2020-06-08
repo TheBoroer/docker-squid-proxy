@@ -1,4 +1,4 @@
-# Squid4 with SSL proxying
+# Squid4 HTTP/HTTPS Proxy with RADIUS Auth
 
 This dockerfile builds a Squid 4 instance and includes all the necessary
 tooling to run it as a MITM (man-in-the-middle) SSL proxy.
