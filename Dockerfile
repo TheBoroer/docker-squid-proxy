@@ -100,6 +100,7 @@ COPY custom/squid.conf.p2 /squid.conf.p2
 
 COPY squid.bsh /squid.bsh
 RUN sed -i 's/\r//' /squid.bsh
+RUN chmod +x /squid.bsh
 
 # Configuration environment
 ENV HTTP_PORT=3128 \
@@ -113,9 +114,8 @@ ENV HTTP_PORT=3128 \
     DNS_OVER_HTTPS_SUFFIX_SERVER=
 
 EXPOSE 3128
+EXPOSE 3129
 
-#ENTRYPOINT [ "/squid.bsh" ]
-ENTRYPOINT [ "/bin/bash" ]
-
+ENTRYPOINT [ "/squid.bsh" ]
 
 # CMD ["/usr/sbin/squid", "-f", "/etc/squid/squid.conf", "-NYCd", "1"]
