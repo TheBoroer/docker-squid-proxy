@@ -12,8 +12,8 @@ request_timeout 5 minutes
 # https://wiki.ipfire.org/configuration/network/proxy/ext_info/logging
 logfile_rotate 0
 access_log {{ACCESS_LOG|default:"stdio:/dev/stdout combined"}}
+cache_log {{CACHE_LOG|default:"/dev/stderr"}}
 #cache_store_log {{CACHE_STORE_LOG|default:"stdio:/dev/stdout"}}
-#cache_log {{CACHE_LOG|default:"/dev/stderr"}}
 #netdb_filename {{NETDB_FILENAME|default:"stdio:/var/cache/squid4/netdb.state"}}
 
 # Visible hostname to allow multi-squid
