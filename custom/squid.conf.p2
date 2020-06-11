@@ -4,9 +4,9 @@ cache_effective_user proxy
 workers {{SQUID_WORKERS|default:"8"}}
 pipeline_prefetch on
 shutdown_lifetime 1 seconds
-pconn_timeout 2 minutes
-connect_timeout 5 minutes
-request_timeout 5 minutes
+pconn_timeout {{PCONN_TIMEOUT|default:"2 minutes"}}
+connect_timeout {{CONNECT_TIMEOUT|default:"2 minutes"}}
+request_timeout {{REQUEST_TIMEOUT|default:"5 minutes"}}
 
 # Log Config
 # https://wiki.ipfire.org/configuration/network/proxy/ext_info/logging
@@ -97,9 +97,14 @@ auth_param basic credentialsttl 2 hours
 auth_param basic casesensitive off
 {% endif %}
 
+{% if CUSTOM_ACLS %}
+{{CUSTOM_ACLS}}
+{% else %}
 # Require Authentication
-acl authenticated_user proxy_auth REQUIRED
-http_access allow all authenticated_user
+acl auth_users proxy_auth REQUIRED
+http_access allow all auth_users
+{% endif %}
+
 
 # And finally deny all other access to this proxy
 http_access deny all
@@ -122,13 +127,19 @@ via off
 forwarded_for off
 httpd_suppress_version_string on
 
-### DENY Request Headers ###
+### Deny REQUEST Headers ###
 request_header_access Via deny all
 request_header_access Forwarded-For deny all
 request_header_access X-Forwarded-For deny all
 request_header_access Referer deny all
 request_header_access From deny all
 request_header_access User-Agent deny all
+
+### Deny REPLY Headers ###
+reply_header_access Server deny all
+reply_header_access X-Cache deny all
+reply_header_access X-Cache-Lookup deny all
+reply_header_access X-Squid-Error deny all
 
 # Set Custom Error Pages
 error_directory /etc/squid4/error_pages/

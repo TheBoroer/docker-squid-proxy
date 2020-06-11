@@ -20,6 +20,15 @@ variables:
     Default: `stdio:/dev/stdout combined`
  * `AUTH_CHILDREN`
    Default: `5000`
+ * `PCONN_TIMEOUT`
+   Default: `2 minutes`
+   Squid will close persistent connections if they are idle for this amount of time. Persistent connections will be disabled entirely if this option is set to a value less than 10 seconds.
+ * `CONNECT_TIMEOUT`
+   Default: `2 minutes`
+   This option specifies the timeout for how long Squid should wait for the connection to complete.
+ * `REQUEST_TIMEOUT`
+   Default: `5 minutes`
+   Squid to wait for an HTTP request after initial connection establishment.
  * `AUTH_REALM`
    Default: `Restricted Area`
  * `RADIUS_ENABLE`
@@ -31,6 +40,14 @@ variables:
    Default: `1812`
  * `RADIUS_SECRET`
    Default: ""
+ * `CUSTOM_ACLS`
+   Default: 
+   ```
+   acl auth_users proxy_auth REQUIRED
+   http_access allow all auth_users
+   ```
+   Custom set of ACLs to be added (separated by newlines) before the final `http_access deny all` rule. 
+   Note: setting this variable replaces the default auth ACL.
  * `EXTRA_CONFIGx`
    Extra non-specific configuration lines to be appended after the main body of
    the configuration file. This is a good place for custom ACL parameters.
