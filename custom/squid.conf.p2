@@ -114,7 +114,7 @@ http_access allow all auth_users
 http_access deny all
 
 ## Use the below to avoid proxy-chaining
-always_direct allow all
+#always_direct allow all
 
 #############
 # Hardening #
