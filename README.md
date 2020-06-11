@@ -18,6 +18,11 @@ variables:
     Default: `docker-squid4`
  * `ACCESS_LOG`
     Default: `stdio:/dev/stdout combined`
+ * `ACCESS_LOG`
+    Default: `/dev/stderr`
+ * `DEBUG_OPTIONS`
+    Default: `ALL,1`
+    More information on debugging section and level numbers can be found here: [Debugging via cache.log](http://etutorials.org/Server+Administration/Squid.+The+definitive+guide/Chapter+16.+Debugging+and+Troubleshooting/16.2+Debugging+via+cache.log/)
  * `AUTH_CHILDREN`
    Default: `5000`
  * `PCONN_TIMEOUT`
