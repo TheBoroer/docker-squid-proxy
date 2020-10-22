@@ -78,6 +78,14 @@ acl to_localnet dst 192.168.0.0/16          # RFC 1918 local private network (LA
 acl to_localnet dst fc00::/7                # RFC 4193 local private network range
 acl to_localnet dst fe80::/10               # RFC 4291 link-local (directly plugged) machines
 
+
+# Certbot HTTP Challenge handover
+acl challenge urlpath_regex ^/.well-known/acme-challenge
+cache_peer 127.0.0.1 parent 5555 0 no-query originserver name=certbot
+cache_peer_access certbot allow challenge
+cache_peer_access certbot deny all
+
+
 # We strongly recommend the following be uncommented to protect innocent
 # web applications running on the proxy server who think the only
 # one who can access services on "localhost" is a local user

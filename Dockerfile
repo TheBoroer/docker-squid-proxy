@@ -94,6 +94,8 @@ RUN wget -O /tmp/doh.tgz \
     chmod +x /usr/local/bin/dns-over-https-proxy
     
 
+RUN sudo apt install -y certbot
+
 COPY custom/error_pages /etc/squid4/error_pages
 COPY custom/radius_auth.conf.p2 /radius_auth.conf.p2
 COPY custom/squid.conf.p2 /squid.conf.p2

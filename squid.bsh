@@ -59,17 +59,28 @@ if [ ! -e /etc/squid4/squid.conf ]; then
     exit 1
 fi
 
+if [ "$RUN_CERTBOT" = "true" ]; then
+  # Run Certbot
+  certbot --standalone --preferred-challenges http --http-01-port 5555 --deploy-hook '/usr/sbin/squid -k reconfigure' --d $HOSTNAME
+fi
+
 # Build the configuration directories if needed
 squid -z -N
 
 
 # Start squid normally
 squid -NYCd 1 2>&1 &
-PID=$!
 
-
-# This construct allows signals to kill the container successfully.
-trap "kill -TERM $(jobs -p)" INT TERM
-wait $PID
-wait $PID
-exit $?
+if [ "$RUN_CERTBOT" = "true" ]; then
+  while sleep 12h; do
+    echo "Running Certbot"
+    certbot --standalone --preferred-challenges http --http-01-port 5555 --deploy-hook '/usr/sbin/squid -k reconfigure' --d $HOSTNAME
+  done
+else
+  PID=$!
+  # This construct allows signals to kill the container successfully.
+  trap "kill -TERM $(jobs -p)" INT TERM
+  wait $PID
+  wait $PID
+  exit $?
+fi
