@@ -95,9 +95,7 @@ RUN wget -O /tmp/doh.tgz \
     $URL_DOH && \
     tar -xvvf /tmp/doh.tgz --strip-components=1 -C /usr/local/bin/ && \
     chmod +x /usr/local/bin/dns-over-https-proxy
-    
 
-RUN apt install -y certbot
 
 COPY custom/error_pages /etc/squid4/error_pages
 COPY custom/radius_auth.conf.p2 /radius_auth.conf.p2
