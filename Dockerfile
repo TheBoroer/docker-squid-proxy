@@ -3,6 +3,9 @@ FROM ${DOCKER_PREFIX}ubuntu:bionic
 
 ARG TRUST_CERT=
 
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Toronto
+
 RUN if [ ! -z "$TRUST_CERT" ]; then \
       echo "$TRUST_CERT" > /usr/local/share/ca-certificates/build-trust.crt ; \
       update-ca-certificates ; \
@@ -79,7 +82,7 @@ RUN wget -O /usr/local/bin/p2 \
 # Clone and build proxychains-ng for SSL upstream proxying
 ARG PROXYCHAINS_COMMITTISH=7a233fb1f05bcbf3d7f5c91658932261de1e13cb
 
-RUN apt-get install -y git
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y git
 
 RUN git clone https://github.com/rofl0r/proxychains-ng.git /src/proxychains-ng && \
     cd /src/proxychains-ng && \
