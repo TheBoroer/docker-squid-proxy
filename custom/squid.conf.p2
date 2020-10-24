@@ -24,7 +24,9 @@ debug_options {{DEBUG_OPTIONS|default:"ALL,1"}}
 visible_hostname {{VISIBLE_HOSTNAME|default:"docker-squid4"}}
 
 http_port {{HTTP_PORT}}
+{% if HTTPS_ENABLED | upper == "TRUE" %}
 https_port {{HTTPS_PORT}} cert={{HTTPS_CERT}} key={{HTTPS_KEY}}
+{% endif %}
 
 # DNS Resolver Settings
 {% if DNS_OVER_HTTPS|default:"" != "true" %}

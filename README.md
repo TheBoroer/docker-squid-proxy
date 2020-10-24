@@ -10,10 +10,12 @@ variables:
     Default: `3128`
  * `HTTPS_PORT`
     Default: `3129`
+ * `HTTPS_ENABLED`
+    Option to enable or disable HTTPS support. Default: `false`
  * `HTTPS_CERT`
-    Required. Path to Fullchain Cert file for HTTPS port.
+    Required for HTTPS. Path to Fullchain Cert file for HTTPS port.
  * `HTTPS_KEY`
-    Required. Path to Private Key file for HTTPS port.
+    Required for HTTPS. Path to Private Key file for HTTPS port.
  * `VISIBLE_HOSTNAME`
     Default: `docker-squid4`
  * `ACCESS_LOG`
