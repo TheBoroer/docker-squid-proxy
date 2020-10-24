@@ -16,6 +16,8 @@ variables:
     Required for HTTPS. Path to Fullchain Cert file for HTTPS port.
  * `HTTPS_KEY`
     Required for HTTPS. Path to Private Key file for HTTPS port.
+ * `PROXY_PROTOCOL_ENABLED`
+    Default: `false`
  * `VISIBLE_HOSTNAME`
     Default: `docker-squid4`
  * `ACCESS_LOG`

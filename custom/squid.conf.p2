@@ -96,6 +96,11 @@ http_access deny to_localhost
 # Deny Access TO local/internal/private networks
 http_access deny to_localnet
 
+{% if PROXY_PROTOCOL_ENABLED | upper == "TRUE" %}
+# Proxy Protocol Setting
+proxy_protocol_access allow all
+{% endif %}
+
 # IP Rate Limit Settings
 #acl ip_limit max_user_ip 5
 #http_access deny ip_limit
