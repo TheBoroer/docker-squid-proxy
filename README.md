@@ -27,6 +27,8 @@ variables:
  * `DEBUG_OPTIONS`
     Default: `ALL,1`
     More information on debugging section and level numbers can be found here: [Debugging via cache.log](http://etutorials.org/Server+Administration/Squid.+The+definitive+guide/Chapter+16.+Debugging+and+Troubleshooting/16.2+Debugging+via+cache.log/)
+ * `PIPELINE_PREFETCH`
+   Default: `off`
  * `AUTH_CHILDREN`
    Default: `5000`
  * `PCONN_TIMEOUT`

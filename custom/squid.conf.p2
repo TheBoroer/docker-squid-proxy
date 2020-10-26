@@ -2,7 +2,7 @@
 
 cache_effective_user proxy
 workers {{SQUID_WORKERS|default:"8"}}
-pipeline_prefetch on
+pipeline_prefetch {{PIPELINE_PREFETCH | default: "off" }}
 shutdown_lifetime 1 seconds
 pconn_timeout {{PCONN_TIMEOUT|default:"2 minutes"}}
 connect_timeout {{CONNECT_TIMEOUT|default:"2 minutes"}}
@@ -82,10 +82,10 @@ acl to_localnet dst fe80::/10               # RFC 4291 link-local (directly plug
 
 
 # Certbot HTTP Challenge handover
-acl challenge urlpath_regex ^/.well-known/acme-challenge
-cache_peer 127.0.0.1 parent 5555 0 no-query originserver name=certbot
-cache_peer_access certbot allow challenge
-cache_peer_access certbot deny all
+#acl challenge urlpath_regex ^/.well-known/acme-challenge
+#cache_peer 127.0.0.1 parent 5555 0 no-query originserver name=certbot
+#cache_peer_access certbot allow challenge
+#cache_peer_access certbot deny all
 
 
 # We strongly recommend the following be uncommented to protect innocent
