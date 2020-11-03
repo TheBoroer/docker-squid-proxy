@@ -18,6 +18,9 @@ variables:
     Required for HTTPS. Path to Private Key file for HTTPS port.
  * `PROXY_PROTOCOL_ENABLED`
     Default: `false`
+ * `TRUST_UPSTREAM`
+    Default: `false`
+    If set to true, sets the `follow_x_forwarded_for` squid directive to `allow all`.
  * `VISIBLE_HOSTNAME`
     Default: `docker-squid4`
  * `ACCESS_LOG`

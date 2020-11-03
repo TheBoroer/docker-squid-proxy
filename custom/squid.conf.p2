@@ -87,6 +87,11 @@ acl to_localnet dst fe80::/10               # RFC 4291 link-local (directly plug
 #cache_peer_access certbot allow challenge
 #cache_peer_access certbot deny all
 
+{% if TRUST_UPSTREAM | upper == "TRUE" %}
+# DANGER: Trust ALL upstream proxy's forwarded client IP
+follow_x_forwarded_for allow all
+{% endif %}
+
 
 # We strongly recommend the following be uncommented to protect innocent
 # web applications running on the proxy server who think the only
