@@ -126,6 +126,8 @@ auth_param basic credentialsttl 2 hours
 auth_param basic casesensitive off
 {% endif %}
 
+url_rewrite_children {{URL_REWRITE_CHILDREN|default:"20"}} startup=10 idle=5 concurrency=10
+
 {% if CUSTOM_ACLS %}
 {{CUSTOM_ACLS}}
 {% else %}
