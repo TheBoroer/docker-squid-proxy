@@ -7,18 +7,21 @@ shutdown_lifetime 1 seconds
 pconn_timeout {{PCONN_TIMEOUT|default:"2 minutes"}}
 connect_timeout {{CONNECT_TIMEOUT|default:"2 minutes"}}
 request_timeout {{REQUEST_TIMEOUT|default:"5 minutes"}}
+client_db {{SQUID_CLIENT_DB|default:"off"}}
 
 # Log Config
 # https://wiki.ipfire.org/configuration/network/proxy/ext_info/logging
 logfile_rotate 0
 access_log {{ACCESS_LOG|default:"stdio:/dev/stdout combined"}}
 
+# Cache Config
 cache_log {{CACHE_LOG|default:"/dev/stderr"}}
 cache_store_log {{CACHE_STORE_LOG|default:"none"}}
+{% if CACHE_DIR %}
 cache_dir {{CACHE_DIR|default:"null /tmp"}}
+{% endif %}
 cache_mem {{CACHE_MEM|default:"256 MB"}}
 memory_pools {{MEMORY_POOLS|default:"on"}}
-
 
 debug_options {{DEBUG_OPTIONS|default:"ALL,1"}}
 # E.g. A helpful value for debug_options for debugging ACLs: "ALL,3 28,5"
