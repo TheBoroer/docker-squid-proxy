@@ -1,7 +1,7 @@
 # TEMPLATED CONFIGURATION FILE. UPDATED ON EACH RUN.
 
 cache_effective_user proxy
-workers {{SQUID_WORKERS|default:"8"}}
+workers {{SQUID_WORKERS|default:"1"}}
 pipeline_prefetch {{PIPELINE_PREFETCH | default: "off" }}
 shutdown_lifetime 1 seconds
 pconn_timeout {{PCONN_TIMEOUT|default:"2 minutes"}}
@@ -21,7 +21,7 @@ cache_store_log {{CACHE_STORE_LOG|default:"none"}}
 cache_dir {{CACHE_DIR|default:"null /tmp"}}
 {% endif %}
 cache_mem {{CACHE_MEM|default:"256 MB"}}
-memory_pools {{MEMORY_POOLS|default:"on"}}
+memory_pools {{MEMORY_POOLS|default:"off"}}
 
 debug_options {{DEBUG_OPTIONS|default:"ALL,1"}}
 # E.g. A helpful value for debug_options for debugging ACLs: "ALL,3 28,5"
@@ -31,7 +31,12 @@ debug_options {{DEBUG_OPTIONS|default:"ALL,1"}}
 # Visible hostname to allow multi-squid
 visible_hostname {{VISIBLE_HOSTNAME|default:"docker-squid4"}}
 
+{% if PROXY_PROTOCOL_ENABLED | upper == "TRUE" %}
+http_port {{HTTP_PORT}} require-proxy-header
+{% else %}
 http_port {{HTTP_PORT}}
+{% endif %}
+
 {% if HTTPS_ENABLED | upper == "TRUE" %}
 https_port {{HTTPS_PORT}} cert={{HTTPS_CERT}} key={{HTTPS_KEY}}
 {% endif %}
@@ -47,22 +52,11 @@ dns_nameservers 1.1.1.1 8.8.8.8
 # ACLs / Access Rules #
 #######################
 
-# Example Safe Port List
-# acl Safe_ports port 80          # http
-# Deny requests to certain unsafe ports
-#http_access deny !Safe_ports
-
-# Example SSL Safe Port List
-# acl SSL_ports port 443
-# acl CONNECT method CONNECT
-# Deny CONNECT to other than secure SSL ports
-#http_access deny CONNECT !SSL_ports
-
-# ^^^^^^^^^^^^ NOTE ^^^^^^^^^^^^
-# Commented out since there are more SSL ports that need to be unblocked than the standard 443.
-# Example: https://neu-speedtest1.neustylesoftware.ca:8080/hello?nocache=8039cc95-4e45-467f-abcd-234fa1f9761b
-
 # Deny access to manager completely.
+#http_access deny manager
+
+# Allow squidclient manager commands from localhost only
+http_access allow localhost manager
 http_access deny manager
 
 # ACLs/Rules for Cache Manager
@@ -95,23 +89,26 @@ acl to_localnet dst fe80::/10               # RFC 4291 link-local (directly plug
 #cache_peer_access certbot allow challenge
 #cache_peer_access certbot deny all
 
-{% if TRUST_UPSTREAM | upper == "TRUE" %}
 # DANGER: Trust ALL upstream proxy's forwarded client IP
-follow_x_forwarded_for allow all
+{% if TRUST_UPSTREAM | upper == "TRUE" %}
+follow_x_forwarded_for allow localnet
 {% endif %}
-
 
 # We strongly recommend the following be uncommented to protect innocent
 # web applications running on the proxy server who think the only
 # one who can access services on "localhost" is a local user
+# Deny access TO localhost
 http_access deny to_localhost
 
-# Deny Access TO local/internal/private networks
+# Deny access TO local/internal/private networks
 http_access deny to_localnet
 
-{% if PROXY_PROTOCOL_ENABLED | upper == "TRUE" %}
 # Proxy Protocol Setting
-proxy_protocol_access allow all
+{% if PROXY_PROTOCOL_ENABLED | upper == "TRUE" %}
+# Allow incoming proxy protocol for LAN IPs
+proxy_protocol_access allow localnet
+# Deny proxy protocol access for everything else
+proxy_protocol_access deny all
 {% endif %}
 
 # IP Rate Limit Settings
@@ -123,9 +120,9 @@ proxy_protocol_access allow all
 #auth_param basic program /usr/libexec/basic_ncsa_auth /etc/squid4/squid_passwd
 {% if RADIUS_ENABLE|default:"" == "true" %}
 auth_param basic program /usr/libexec/basic_radius_auth -f /etc/squid4/radius_auth.conf
-auth_param basic children {{AUTH_CHILDREN|default:"5000"}} startup=1000 idle=500
+auth_param basic children {{AUTH_CHILDREN|default:"100"}} startup=100 idle=100
 auth_param basic realm {{AUTH_REALM|default:"Restricted Area"}}
-auth_param basic credentialsttl 2 hours
+auth_param basic credentialsttl 5 minutes
 auth_param basic casesensitive off
 {% endif %}
 

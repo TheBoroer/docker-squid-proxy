@@ -7,8 +7,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Toronto
 
 RUN if [ ! -z "$TRUST_CERT" ]; then \
-      echo "$TRUST_CERT" > /usr/local/share/ca-certificates/build-trust.crt ; \
-      update-ca-certificates ; \
+    echo "$TRUST_CERT" > /usr/local/share/ca-certificates/build-trust.crt ; \
+    update-ca-certificates ; \
     fi
 
 # Normalize apt sources
@@ -21,7 +21,7 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get build-dep -y squid && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y wget tar xz-utils libssl-dev
 
-ARG SQUID_VERSION=4.11
+ARG SQUID_VERSION=4.17
 
 # TODO: verify the squid download with the signing key
 RUN mkdir /src \
@@ -29,45 +29,45 @@ RUN mkdir /src \
     && wget http://www.squid-cache.org/Versions/v4/squid-$SQUID_VERSION.tar.xz \
     && mkdir squid \
     && tar -C squid --strip-components=1 -xvf squid-$SQUID_VERSION.tar.xz
-    
+
 RUN cd /src/squid && \
     ./configure \
-        --prefix=/usr \
-        --datadir=/usr/share/squid4 \
-    		--sysconfdir=/etc/squid4 \
-    		--localstatedir=/var \
-    		--mandir=/usr/share/man \
-    		--enable-inline \
-    		--enable-async-io=8 \
-    		--enable-storeio="ufs,aufs,diskd,rock" \
-    		--enable-removal-policies="lru,heap" \
-    		--enable-delay-pools \
-    		--enable-cache-digests \
-    		--enable-underscores \
-    		--enable-icap-client \
-    		--enable-follow-x-forwarded-for \
-    		--enable-auth-basic="DB,fake,getpwnam,LDAP,NCSA,NIS,PAM,POP3,RADIUS,SASL,SMB" \
-    		--enable-auth-digest="file,LDAP" \
-    		--enable-auth-negotiate="kerberos,wrapper" \
-    		--enable-auth-ntlm="fake" \
-    		--enable-external-acl-helpers="file_userip,kerberos_ldap_group,LDAP_group,session,SQL_session,unix_group,wbinfo_group" \
-    		--enable-url-rewrite-helpers="fake" \
-    		--enable-eui \
-    		--enable-esi \
-    		--enable-icmp \
-    		--enable-zph-qos \
-    		--with-openssl \
-    		--enable-ssl \
-    		--enable-ssl-crtd \ 
-    		--disable-translation \
-    		--with-swapdir=/var/spool/squid4 \
-    		--with-logdir=/var/log/squid4 \
-    		--with-pidfile=/var/run/squid4.pid \
-    		--with-filedescriptors=65536 \
-    		--with-large-files \
-    		--with-default-user=proxy \
-      	--disable-arch-native
-		
+    --prefix=/usr \
+    --datadir=/usr/share/squid4 \
+    --sysconfdir=/etc/squid4 \
+    --localstatedir=/var \
+    --mandir=/usr/share/man \
+    --enable-inline \
+    --enable-async-io=8 \
+    --enable-storeio="ufs,aufs,diskd,rock" \
+    --enable-removal-policies="lru,heap" \
+    --enable-delay-pools \
+    --enable-cache-digests \
+    --enable-underscores \
+    --enable-icap-client \
+    --enable-follow-x-forwarded-for \
+    --enable-auth-basic="DB,fake,getpwnam,LDAP,NCSA,NIS,PAM,POP3,RADIUS,SASL,SMB" \
+    --enable-auth-digest="file,LDAP" \
+    --enable-auth-negotiate="kerberos,wrapper" \
+    --enable-auth-ntlm="fake" \
+    --enable-external-acl-helpers="file_userip,kerberos_ldap_group,LDAP_group,session,SQL_session,unix_group,wbinfo_group" \
+    --enable-url-rewrite-helpers="fake" \
+    --enable-eui \
+    --enable-esi \
+    --enable-icmp \
+    --enable-zph-qos \
+    --with-openssl \
+    --enable-ssl \
+    --enable-ssl-crtd \ 
+    --disable-translation \
+    --with-swapdir=/var/spool/squid4 \
+    --with-logdir=/var/log/squid4 \
+    --with-pidfile=/var/run/squid4.pid \
+    --with-filedescriptors=65536 \
+    --with-large-files \
+    --with-default-user=proxy \
+    --disable-arch-native
+
 ARG CONCURRENCY=1
 
 RUN cd /src/squid && \
