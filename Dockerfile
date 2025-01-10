@@ -1,6 +1,9 @@
 ARG DOCKER_PREFIX=
 FROM ${DOCKER_PREFIX}ubuntu:bionic
 
+ARG SQUID_VERSION=4.17
+
+
 ARG TRUST_CERT=
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -20,8 +23,6 @@ RUN cat /etc/apt/sources.list | grep -v '^#' | sed /^$/d | sort | uniq > sources
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get build-dep -y squid && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y wget tar xz-utils libssl-dev
-
-ARG SQUID_VERSION=4.17
 
 # TODO: verify the squid download with the signing key
 RUN mkdir /src \
@@ -68,7 +69,7 @@ RUN cd /src/squid && \
     --with-default-user=proxy \
     --disable-arch-native
 
-ARG CONCURRENCY=1
+ARG CONCURRENCY=4
 
 RUN cd /src/squid && \
     make -j$CONCURRENCY && \
@@ -82,7 +83,8 @@ RUN wget -O /usr/local/bin/p2 \
 # Clone and build proxychains-ng for SSL upstream proxying
 ARG PROXYCHAINS_COMMITTISH=7a233fb1f05bcbf3d7f5c91658932261de1e13cb
 
-RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y git
+# Install required tools
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y git net-tools nano python3 python3-pip
 
 RUN git clone https://github.com/rofl0r/proxychains-ng.git /src/proxychains-ng && \
     cd /src/proxychains-ng && \

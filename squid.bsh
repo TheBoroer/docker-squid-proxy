@@ -18,6 +18,18 @@ chmod -R 750 /var/cache/squid4
 chown proxy: /dev/stdout
 chown proxy: /dev/stderr
 
+# if pip is not installed, install it
+if ! command -v pip >/dev/null; then
+    echo "Installing pip..."
+    apt-get install -y python3-pip
+fi
+
+# If requirements.txt exists, install the required packages
+if [ -e /requirements.txt ]; then
+    echo "Installing python packages..."
+    pip install -r /requirements.txt
+fi
+
 # Initialize the certificates database
 /usr/libexec/security_file_certgen -c -s /var/spool/squid4/ssl_db -M 64MB
 chown -R proxy: /var/spool/squid4/ssl_db
@@ -27,15 +39,15 @@ chown -R proxy: /var/spool/squid4/ssl_db
 
 # Set the configuration
 if [ "$CONFIG_DISABLE" != "true" ]; then
-    p2 -t /squid.conf.p2 > /etc/squid4/squid.conf
-    p2 -t /radius_auth.conf.p2 > /etc/squid4/radius_auth.conf
-    
+    p2 -t /squid.conf.p2 >/etc/squid4/squid.conf
+    p2 -t /radius_auth.conf.p2 >/etc/squid4/radius_auth.conf
+
     # Parse the extra config lines and append them to the configuration
-    echo '# EXTRA CONFIG FROM DOCKER' >> /etc/squid4/squid.conf
+    echo '# EXTRA CONFIG FROM DOCKER' >>/etc/squid4/squid.conf
     env | grep 'EXTRA_CONFIG' | sort | while read extraline; do
-        echo "# $extraline " >> /etc/squid4/squid.conf
+        echo "# $extraline " >>/etc/squid4/squid.conf
         line=$(echo $extraline | cut -d'=' -f2-)
-        echo "$line" >> /etc/squid4/squid.conf
+        echo "$line" >>/etc/squid4/squid.conf
     done
 else
     echo "/etc/squid4/squid.conf: CONFIGURATION TEMPLATING IS DISABLED."
@@ -51,7 +63,7 @@ if [ "$DNS_OVER_HTTPS" = "true" ]; then
         -no-fallthrough "$(echo $DNS_OVER_HTTPS_NO_FALLTHROUGH | tr -s ' ' ',')" \
         -fallthrough-statuses "$DNS_OVER_HTTPS_FALLTHROUGH_STATUSES" &
     echo "Adding dns_nameservers line to squid.conf..."
-    echo "dns_nameservers $(echo $DNS_OVER_HTTPS_LISTEN_ADDR | cut -d':' -f1)" >> /etc/squid4/squid.conf
+    echo "dns_nameservers $(echo $DNS_OVER_HTTPS_LISTEN_ADDR | cut -d':' -f1)" >>/etc/squid4/squid.conf
 fi
 
 if [ ! -e /etc/squid4/squid.conf ]; then
@@ -62,12 +74,10 @@ fi
 # Build the configuration directories if needed
 squid -z -N
 
-
 # Start squid normally
-# squid -NYCd 1 2>&1 &
-squid --foreground -YCd 1 2>&1 &
+squid -NYCd 1 2>&1 &
+# squid --foreground -YCd 1 2>&1 &
 PID=$!
-
 
 # This construct allows signals to kill the container successfully.
 trap "kill -TERM $(jobs -p)" INT TERM
