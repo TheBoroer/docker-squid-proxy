@@ -2,11 +2,10 @@ ARG DOCKER_PREFIX=
 FROM ${DOCKER_PREFIX}ubuntu:jammy
 
 ARG SQUID_VERSION=5.9
-
-
+ARG CONCURRENCY=4
+ARG DEBIAN_FRONTEND=noninteractive
 ARG TRUST_CERT=
 
-ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Toronto
 
 RUN if [ ! -z "$TRUST_CERT" ]; then \
@@ -47,11 +46,11 @@ RUN cd /src/squid && \
     --enable-underscores \
     --enable-icap-client \
     --enable-follow-x-forwarded-for \
-    --enable-auth-basic="DB,fake,getpwnam,LDAP,NCSA,NIS,PAM,POP3,RADIUS,SASL,SMB" \
-    --enable-auth-digest="file,LDAP" \
-    --enable-auth-negotiate="kerberos,wrapper" \
+    --enable-auth-basic="DB,fake,getpwnam,NCSA,RADIUS" \
+    --enable-auth-digest="file" \
+    --enable-auth-negotiate="wrapper" \
     --enable-auth-ntlm="fake" \
-    --enable-external-acl-helpers="file_userip,kerberos_ldap_group,LDAP_group,session,SQL_session,unix_group,wbinfo_group" \
+    --enable-external-acl-helpers="file_userip,session,SQL_session" \
     --enable-url-rewrite-helpers="fake" \
     --enable-eui \
     --enable-esi \
@@ -68,8 +67,6 @@ RUN cd /src/squid && \
     --with-large-files \
     --with-default-user=proxy \
     --disable-arch-native
-
-ARG CONCURRENCY=4
 
 RUN cd /src/squid && \
     make -j$CONCURRENCY && \
