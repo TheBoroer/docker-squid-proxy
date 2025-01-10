@@ -3,7 +3,7 @@ name: default
 kind: pipeline
 
 steps:
-  - name: build-and-push
+  - name: build-and-push-latest
     image: plugins/docker
     settings:
       username:
@@ -12,9 +12,29 @@ steps:
         from_secret: dockerhub_password
       repo: boro/squid-proxy
       tags:
-        - latest
+        - "boro/squid-proxy:latest"
       cache_from:
         - "boro/squid-proxy:latest"
+    when:
+      branch:
+        - master
+
+  - name: build-and-push-branch
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: dockerhub_username
+      password:
+        from_secret: dockerhub_password
+      repo: boro/squid-proxy
+      tags:
+        - "boro/squid-proxy:${DRONE_BRANCH}"
+      # cache_from:
+      #   - "boro/squid-proxy:${DRONE_BRANCH}"
+    when:
+      branch:
+        exclude:
+          - master
 
 volumes:
   - name: dockersock
