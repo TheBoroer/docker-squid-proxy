@@ -29,8 +29,8 @@ steps:
       repo: boro/squid-proxy
       tags:
         - "boro/squid-proxy:${DRONE_BRANCH}"
-      cache_from:
-        - "boro/squid-proxy:${DRONE_BRANCH}"
+      # cache_from:
+      #   - "boro/squid-proxy:${DRONE_BRANCH}"
     when:
       branch:
         exclude:
