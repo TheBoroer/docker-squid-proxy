@@ -1,6 +1,6 @@
 [![Build Status](https://drone.bo.ro/api/badges/TheBoroer/docker-squid-proxy/status.svg)](https://drone.bo.ro/TheBoroer/docker-squid-proxy)
 
-# Squid4 HTTP/HTTPS Proxy with RADIUS Auth
+# Squid HTTP/HTTPS Proxy with RADIUS Auth
 
 This dockerfile builds a Squid 4 instance and includes all the necessary
 tooling to run it as a MITM (man-in-the-middle) SSL proxy.
@@ -24,7 +24,7 @@ variables:
   Default: `false`
   If set to true, sets the `follow_x_forwarded_for` squid directive to `allow all`.
 - `VISIBLE_HOSTNAME`
-  Default: `docker-squid4`
+  Default: `docker-squid`
 - `ACCESS_LOG`
   Default: `stdio:/dev/stdout combined`
 - `ACCESS_LOG`
@@ -75,12 +75,12 @@ variables:
 # DNS-over-HTTPS
 
 In some corporate environments, its not possible to get reliable DNS outbound
-service and `proxychains-ng`'s DNS support won't be able to provide for Squid4
+service and `proxychains-ng`'s DNS support won't be able to provide for Squid
 to actually work. To address this, configuration is included to setup and use
 DNS-over-HTTPS.
 
 The idea of the DNS-over-HTTPS client is that it will use your local proxy and
-network access to provide DNS service to Squid4.
+network access to provide DNS service to Squid.
 
 - `DNS_OVER_HTTPS`
   Default `no`. If `yes` then enables and starts the DNS_OVER_HTTPS service.
