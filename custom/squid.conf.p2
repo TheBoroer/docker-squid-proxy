@@ -26,10 +26,10 @@ memory_pools {{MEMORY_POOLS|default:"off"}}
 debug_options {{DEBUG_OPTIONS|default:"ALL,1"}}
 # E.g. A helpful value for debug_options for debugging ACLs: "ALL,3 28,5"
 
-#netdb_filename {{NETDB_FILENAME|default:"stdio:/var/cache/squid4/netdb.state"}}
+#netdb_filename {{NETDB_FILENAME|default:"stdio:/var/cache/squid/netdb.state"}}
 
 # Visible hostname to allow multi-squid
-visible_hostname {{VISIBLE_HOSTNAME|default:"docker-squid4"}}
+visible_hostname {{VISIBLE_HOSTNAME|default:"docker-squid"}}
 
 {% if PROXY_PROTOCOL_ENABLED | upper == "TRUE" %}
 http_port {{HTTP_PORT}} require-proxy-header
@@ -117,9 +117,9 @@ proxy_protocol_access deny all
 #authenticate_ip_ttl 5 minutes
 
 # Authentication
-#auth_param basic program /usr/libexec/basic_ncsa_auth /etc/squid4/squid_passwd
+#auth_param basic program /usr/libexec/basic_ncsa_auth /etc/squid/squid_passwd
 {% if RADIUS_ENABLE|default:"" == "true" %}
-auth_param basic program /usr/libexec/basic_radius_auth -f /etc/squid4/radius_auth.conf
+auth_param basic program /usr/libexec/basic_radius_auth -f /etc/squid/radius_auth.conf
 auth_param basic children {{AUTH_CHILDREN|default:"100"}} startup=100 idle=100
 auth_param basic realm {{AUTH_REALM|default:"Restricted Area"}}
 auth_param basic credentialsttl 5 minutes
@@ -173,5 +173,5 @@ reply_header_access X-Cache-Lookup deny all
 reply_header_access X-Squid-Error deny all
 
 # Set Custom Error Pages
-error_directory /etc/squid4/error_pages/
+error_directory /etc/squid/error_pages/
 

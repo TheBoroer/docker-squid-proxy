@@ -1,7 +1,7 @@
 ARG DOCKER_PREFIX=
 FROM ${DOCKER_PREFIX}ubuntu:bionic
 
-ARG SQUID_VERSION=4.17
+ARG SQUID_VERSION=5.9
 
 
 ARG TRUST_CERT=
@@ -27,15 +27,15 @@ RUN apt-get update && \
 # TODO: verify the squid download with the signing key
 RUN mkdir /src \
     && cd /src \
-    && wget http://www.squid-cache.org/Versions/v4/squid-$SQUID_VERSION.tar.xz \
+    && wget http://www.squid-cache.org/Versions/v5/squid-$SQUID_VERSION.tar.xz \
     && mkdir squid \
     && tar -C squid --strip-components=1 -xvf squid-$SQUID_VERSION.tar.xz
 
 RUN cd /src/squid && \
     ./configure \
     --prefix=/usr \
-    --datadir=/usr/share/squid4 \
-    --sysconfdir=/etc/squid4 \
+    --datadir=/usr/share/squid \
+    --sysconfdir=/etc/squid \
     --localstatedir=/var \
     --mandir=/usr/share/man \
     --enable-inline \
@@ -61,9 +61,9 @@ RUN cd /src/squid && \
     --enable-ssl \
     --enable-ssl-crtd \ 
     --disable-translation \
-    --with-swapdir=/var/spool/squid4 \
-    --with-logdir=/var/log/squid4 \
-    --with-pidfile=/var/run/squid4.pid \
+    --with-swapdir=/var/spool/squid \
+    --with-logdir=/var/log/squid \
+    --with-pidfile=/var/run/squid.pid \
     --with-filedescriptors=65536 \
     --with-large-files \
     --with-default-user=proxy \
@@ -99,7 +99,7 @@ RUN wget -O /tmp/doh.tgz \
     chmod +x /usr/local/bin/dns-over-https-proxy
 
 
-COPY custom/error_pages /etc/squid4/error_pages
+COPY custom/error_pages /etc/squid/error_pages
 COPY custom/radius_auth.conf.p2 /radius_auth.conf.p2
 COPY custom/squid.conf.p2 /squid.conf.p2
 
@@ -110,7 +110,7 @@ RUN chmod +x /squid.bsh
 # Configuration environment
 ENV HTTP_PORT=3128 \
     HTTPS_PORT=3129 \
-    VISIBLE_HOSTNAME=docker-squid4 \
+    VISIBLE_HOSTNAME=docker-squid \
     DNS_OVER_HTTPS_LISTEN_ADDR="127.0.0.153:53" \
     DNS_OVER_HTTPS_SERVER="https://dns.google.com/resolve" \
     DNS_OVER_HTTPS_NO_FALLTHROUGH="" \
