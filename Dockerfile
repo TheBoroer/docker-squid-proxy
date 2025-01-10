@@ -1,7 +1,6 @@
 ARG DOCKER_PREFIX=
 FROM ${DOCKER_PREFIX}ubuntu:bionic
 
-ARG CONCURRENCY=4
 ARG SQUID_VERSION=4.17
 ARG TRUST_CERT=
 ARG DEBIAN_FRONTEND=noninteractive
@@ -50,7 +49,7 @@ RUN cd /src/squid && \
     --enable-auth-digest="file,LDAP" \
     --enable-auth-negotiate="kerberos,wrapper" \
     --enable-auth-ntlm="fake" \
-    --enable-external-acl-helpers="file_userip,kerberos_ldap_group,LDAP_group,session,SQL_session,unix_group,wbinfo_group" \
+    --enable-external-acl-helpers="file_userip,session,SQL_session" \
     --enable-url-rewrite-helpers="fake" \
     --enable-eui \
     --enable-esi \
@@ -69,7 +68,7 @@ RUN cd /src/squid && \
     --disable-arch-native
 
 RUN cd /src/squid && \
-    make -j$CONCURRENCY && \
+    make -j$(nproc) && \
     make install
 
 # Download p2cli dependency
@@ -87,7 +86,7 @@ RUN git clone https://github.com/rofl0r/proxychains-ng.git /src/proxychains-ng &
     cd /src/proxychains-ng && \
     git checkout $PROXYCHAINS_COMMITTISH && \
     ./configure --prefix=/usr --sysconfdir=/etc && \
-    make -j$CONCURRENCY && make install
+    make -j$(nproc) && make install
 
 ARG URL_DOH=https://github.com/wrouesnel/dns-over-https-proxy/releases/download/v0.0.2/dns-over-https-proxy_v0.0.2_linux-amd64.tar.gz
 RUN wget -O /tmp/doh.tgz \
