@@ -36,20 +36,30 @@ RUN cd /src/squid && \
     --sysconfdir=/etc/squid \
     --localstatedir=/var \
     --mandir=/usr/share/man \
+    --disable-maintainer-mode \
+    --disable-dependency-tracking \
     --enable-inline \
     --enable-async-io=8 \
-    --enable-storeio="ufs,aufs,diskd,rock" \
+    --enable-storeio="ufs,aufs,coss,diskd,null" \
     --enable-removal-policies="lru,heap" \
+    --enable-poll \
     --enable-delay-pools \
     --enable-cache-digests \
+    --enable-snmp \
+    --enable-htcp \
+    --enable-select \
+    --enable-carp \
+    --with-large-files \
     --enable-underscores \
     --enable-icap-client \
+    --enable-auth="yes" \
+    --enable-auth-basic="LDAP,NCSA,PAM,SASL,SMB,getpwnam,RADIUS,DB" \
+    --enable-auth-digest="LDAP,file" \
+    --enable-external-acl-helpers="file_userip,LDAP_group,session,unix_group,wbinfo_group,SQL_session" \
+    --with-filedescriptors=65536 \
+    --enable-epoll \
+    --enable-linux-netfilter \
     --enable-follow-x-forwarded-for \
-    --enable-auth-basic="DB,fake,getpwnam,NCSA,RADIUS" \
-    --enable-auth-digest="file" \
-    --enable-auth-negotiate="wrapper" \
-    --enable-auth-ntlm="fake" \
-    --enable-external-acl-helpers="file_userip,session,SQL_session" \
     --enable-url-rewrite-helpers="fake" \
     --enable-eui \
     --enable-esi \
@@ -95,6 +105,7 @@ RUN wget -O /tmp/doh.tgz \
     chmod +x /usr/local/bin/dns-over-https-proxy
 
 
+COPY custom/requirements.txt /requirements.txt
 COPY custom/error_pages /etc/squid/error_pages
 COPY custom/error_pages.css /etc/squid/error_pages.css
 COPY custom/radius_auth.conf.p2 /radius_auth.conf.p2
@@ -103,6 +114,10 @@ COPY custom/squid.conf.p2 /squid.conf.p2
 COPY squid.bsh /squid.bsh
 RUN sed -i 's/\r//' /squid.bsh
 RUN chmod +x /squid.bsh
+
+
+USER proxy
+RUN pip3 install -r /requirements.txt
 
 # Configuration environment
 ENV HTTP_PORT=3128 \
