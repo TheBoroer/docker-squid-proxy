@@ -3,7 +3,7 @@ name: default
 kind: pipeline
 
 steps:
-  - name: build-and-push-latest
+  - name: build-latest
     image: plugins/docker
     settings:
       username:
@@ -13,13 +13,11 @@ steps:
       repo: boro/squid-proxy
       tags:
         - "boro/squid-proxy:latest"
-      cache_from:
-        - "boro/squid-proxy:latest"
     when:
       branch:
         - master
 
-  - name: build-and-push-branch
+  - name: build-branch
     image: plugins/docker
     settings:
       username:
@@ -29,8 +27,6 @@ steps:
       repo: boro/squid-proxy
       tags:
         - "boro/squid-proxy:${DRONE_BRANCH}"
-      # cache_from:
-      #   - "boro/squid-proxy:${DRONE_BRANCH}"
     when:
       branch:
         exclude:
