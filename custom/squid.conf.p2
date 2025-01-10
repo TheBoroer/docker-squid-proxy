@@ -43,7 +43,6 @@ https_port {{HTTPS_PORT}} cert={{HTTPS_CERT}} key={{HTTPS_KEY}}
 
 # DNS Resolver Settings
 {% if DNS_OVER_HTTPS|default:"" != "true" %}
-dns_v4_first on
 dns_nameservers 1.1.1.1 8.8.8.8
 {% endif %}
 
@@ -173,5 +172,5 @@ reply_header_access X-Cache-Lookup deny all
 reply_header_access X-Squid-Error deny all
 
 # Set Custom Error Pages
-error_directory /etc/squid/error_pages/
-
+error_directory /etc/squid/error_pages
+err_page_stylesheet /etc/squid/error_pages.css

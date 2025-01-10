@@ -96,6 +96,7 @@ RUN wget -O /tmp/doh.tgz \
 
 
 COPY custom/error_pages /etc/squid/error_pages
+COPY custom/error_pages.css /etc/squid/error_pages.css
 COPY custom/radius_auth.conf.p2 /radius_auth.conf.p2
 COPY custom/squid.conf.p2 /squid.conf.p2
 
