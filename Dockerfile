@@ -1,5 +1,5 @@
 ARG DOCKER_PREFIX=
-FROM ${DOCKER_PREFIX}ubuntu:jammy
+FROM ${DOCKER_PREFIX}ubuntu:bionic
 
 ARG CONCURRENCY=4
 ARG SQUID_VERSION=4.17
@@ -33,8 +33,8 @@ RUN mkdir /src \
 RUN cd /src/squid && \
     ./configure \
     --prefix=/usr \
-    --datadir=/usr/share/squid4 \
-    --sysconfdir=/etc/squid4 \
+    --datadir=/usr/share/squid \
+    --sysconfdir=/etc/squid \
     --localstatedir=/var \
     --mandir=/usr/share/man \
     --enable-inline \
@@ -60,9 +60,9 @@ RUN cd /src/squid && \
     --enable-ssl \
     --enable-ssl-crtd \ 
     --disable-translation \
-    --with-swapdir=/var/spool/squid4 \
-    --with-logdir=/var/log/squid4 \
-    --with-pidfile=/var/run/squid4.pid \
+    --with-swapdir=/var/spool/squid \
+    --with-logdir=/var/log/squid \
+    --with-pidfile=/var/run/squid.pid \
     --with-filedescriptors=65536 \
     --with-large-files \
     --with-default-user=proxy \
@@ -96,7 +96,7 @@ RUN wget -O /tmp/doh.tgz \
     chmod +x /usr/local/bin/dns-over-https-proxy
 
 
-COPY custom/error_pages /etc/squid4/error_pages
+COPY custom/error_pages /etc/squid/error_pages
 COPY custom/radius_auth.conf.p2 /radius_auth.conf.p2
 COPY custom/squid.conf.p2 /squid.conf.p2
 
@@ -107,7 +107,7 @@ RUN chmod +x /squid.bsh
 # Configuration environment
 ENV HTTP_PORT=3128 \
     HTTPS_PORT=3129 \
-    VISIBLE_HOSTNAME=docker-squid4 \
+    VISIBLE_HOSTNAME=docker-squid \
     DNS_OVER_HTTPS_LISTEN_ADDR="127.0.0.153:53" \
     DNS_OVER_HTTPS_SERVER="https://dns.google.com/resolve" \
     DNS_OVER_HTTPS_NO_FALLTHROUGH="" \
