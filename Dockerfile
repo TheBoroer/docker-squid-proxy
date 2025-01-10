@@ -1,5 +1,5 @@
 ARG DOCKER_PREFIX=
-FROM ${DOCKER_PREFIX}ubuntu:bionic
+FROM ${DOCKER_PREFIX}ubuntu:jammy
 
 ARG SQUID_VERSION=5.9
 
@@ -27,7 +27,7 @@ RUN apt-get update && \
 # TODO: verify the squid download with the signing key
 RUN mkdir /src \
     && cd /src \
-    && wget http://www.squid-cache.org/Versions/v5/squid-$SQUID_VERSION.tar.xz \
+    && wget http://www.squid-cache.org/Versions/v${SQUID_VERSION%%.*}/squid-$SQUID_VERSION.tar.xz \
     && mkdir squid \
     && tar -C squid --strip-components=1 -xvf squid-$SQUID_VERSION.tar.xz
 
