@@ -2,9 +2,8 @@ ARG DOCKER_PREFIX=
 FROM ${DOCKER_PREFIX}ubuntu:jammy
 
 ARG SQUID_VERSION=5.9
-ARG CONCURRENCY=4
-ARG DEBIAN_FRONTEND=noninteractive
 ARG TRUST_CERT=
+ARG DEBIAN_FRONTEND=noninteractive
 
 ENV TZ=America/Toronto
 
@@ -69,7 +68,7 @@ RUN cd /src/squid && \
     --disable-arch-native
 
 RUN cd /src/squid && \
-    make -j$CONCURRENCY && \
+    make -j$(nproc) && \
     make install
 
 # Download p2cli dependency
@@ -87,7 +86,7 @@ RUN git clone https://github.com/rofl0r/proxychains-ng.git /src/proxychains-ng &
     cd /src/proxychains-ng && \
     git checkout $PROXYCHAINS_COMMITTISH && \
     ./configure --prefix=/usr --sysconfdir=/etc && \
-    make -j$CONCURRENCY && make install
+    make -j$(nproc) && make install
 
 ARG URL_DOH=https://github.com/wrouesnel/dns-over-https-proxy/releases/download/v0.0.2/dns-over-https-proxy_v0.0.2_linux-amd64.tar.gz
 RUN wget -O /tmp/doh.tgz \
