@@ -18,16 +18,10 @@ chmod -R 750 /var/cache/squid
 chown proxy: /dev/stdout
 chown proxy: /dev/stderr
 
-# if pip is not installed, install it
-if ! command -v pip >/dev/null; then
-    echo "Installing pip..."
-    apt-get install -y python3-pip
-fi
-
 # If requirements.txt exists, install the required packages
 if [ -e /requirements.txt ]; then
     echo "Installing python packages..."
-    pip install -r /requirements.txt
+    pip3 install -r /requirements.txt
 fi
 
 # Initialize the certificates database
