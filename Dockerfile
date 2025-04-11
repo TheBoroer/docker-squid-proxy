@@ -1,9 +1,10 @@
 ARG DOCKER_PREFIX=
 FROM ${DOCKER_PREFIX}ubuntu:jammy
 
-ARG SQUID_VERSION=6.12
+ARG SQUID_VERSION=6.13
 ARG TRUST_CERT=
 ARG DEBIAN_FRONTEND=noninteractive
+ARG PROXY_USER=proxy
 
 ENV TZ=America/Toronto
 
@@ -23,9 +24,11 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y wget tar xz-utils libssl-dev
 
 # TODO: verify the squid download with the signing key
+# 6.12 and under: https://www.squid-cache.org/Versions/v${SQUID_VERSION%%.*}/squid-$SQUID_VERSION.tar.xz
+# 6.13 and up: https://github.com/squid-cache/squid/releases/download/SQUID_${SQUID_VERSION//./_}/squid-$SQUID_VERSION.tar.xz
 RUN mkdir /src \
     && cd /src \
-    && wget https://www.squid-cache.org/Versions/v${SQUID_VERSION%%.*}/squid-$SQUID_VERSION.tar.xz \
+    && wget "https://github.com/squid-cache/squid/releases/download/SQUID_$(echo ${SQUID_VERSION} | tr '.' '_')/squid-$SQUID_VERSION.tar.xz" \
     && mkdir squid \
     && tar -C squid --strip-components=1 -xvf squid-$SQUID_VERSION.tar.xz
 
@@ -90,7 +93,7 @@ RUN wget -O /usr/local/bin/p2 \
 ARG PROXYCHAINS_COMMITTISH=7a233fb1f05bcbf3d7f5c91658932261de1e13cb
 
 # Install required tools
-RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y git net-tools nano python3 python3-pip
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y git net-tools nano curl python3 python3-pip
 
 RUN git clone https://github.com/rofl0r/proxychains-ng.git /src/proxychains-ng && \
     cd /src/proxychains-ng && \
@@ -104,8 +107,7 @@ RUN wget -O /tmp/doh.tgz \
     tar -xvvf /tmp/doh.tgz --strip-components=1 -C /usr/local/bin/ && \
     chmod +x /usr/local/bin/dns-over-https-proxy
 
-
-COPY custom/requirements.txt /requirements.txt
+COPY custom/Pipfile /Pipfile
 COPY custom/error_pages /etc/squid/error_pages
 COPY custom/error_pages.css /etc/squid/error_pages.css
 COPY custom/radius_auth.conf.p2 /radius_auth.conf.p2
@@ -115,20 +117,27 @@ COPY squid.bsh /squid.bsh
 RUN sed -i 's/\r//' /squid.bsh
 RUN chmod +x /squid.bsh
 
-
-USER proxy
-RUN pip3 install -r /requirements.txt
-
-# Configuration environment
+# Environment Configuration
 ENV HTTP_PORT=3128 \
     HTTPS_PORT=3129 \
+    PROXY_USER="$PROXY_USER" \
     VISIBLE_HOSTNAME=docker-squid \
     DNS_OVER_HTTPS_LISTEN_ADDR="127.0.0.153:53" \
     DNS_OVER_HTTPS_SERVER="https://dns.google.com/resolve" \
     DNS_OVER_HTTPS_NO_FALLTHROUGH="" \
     DNS_OVER_HTTPS_FALLTHROUGH_STATUSES=NXDOMAIN \
     DNS_OVER_HTTPS_PREFIX_SERVER= \
-    DNS_OVER_HTTPS_SUFFIX_SERVER=
+    DNS_OVER_HTTPS_SUFFIX_SERVER= \
+    PIPENV_VENV_IN_PROJECT=1
+
+# Setup the Python environment
+RUN mkdir /bin/.local && chmod 777 /bin/.local
+RUN pip3 install pipenv
+
+# Install python packages to venv
+RUN pipenv install
+# Also install them to system as the proxy user
+RUN su $PROXY_USER -s /bin/bash -c "pipenv install --system"
 
 EXPOSE 3128
 EXPOSE 3129
